@@ -1,0 +1,78 @@
+{
+  "_Match-SV5XyXxP.js": {
+    "file": "assets/Match-SV5XyXxP.js",
+    "name": "Match",
+    "imports": [
+      "_jsx-runtime-DJk4aIBl.js"
+    ]
+  },
+  "_api-CKuSm2qT.js": {
+    "file": "assets/api-CKuSm2qT.js",
+    "name": "api",
+    "imports": [
+      "_jsx-runtime-DJk4aIBl.js"
+    ]
+  },
+  "_jsx-runtime-DJk4aIBl.js": {
+    "file": "assets/jsx-runtime-DJk4aIBl.js",
+    "name": "jsx-runtime"
+  },
+  "node_modules/.pnpm/@tanstack+react-start@1.168.18_react-dom@19.2.7_react@19.2.7__react@19.2.7_vite@8.0.16__893df8539744d47209f8b294ca814979/node_modules/@tanstack/react-start/dist/plugin/default-entry/start.ts": {
+    "file": "assets/start-BNTWhVCd.js",
+    "name": "start",
+    "src": "node_modules/.pnpm/@tanstack+react-start@1.168.18_react-dom@19.2.7_react@19.2.7__react@19.2.7_vite@8.0.16__893df8539744d47209f8b294ca814979/node_modules/@tanstack/react-start/dist/plugin/default-entry/start.ts",
+    "isDynamicEntry": true
+  },
+  "node_modules/.pnpm/@tanstack+start-server-core@1.169.8/node_modules/@tanstack/start-server-core/dist/esm/empty-plugin-adapters.js": {
+    "file": "assets/empty-plugin-adapters-CyT6qjC_.js",
+    "name": "empty-plugin-adapters",
+    "src": "node_modules/.pnpm/@tanstack+start-server-core@1.169.8/node_modules/@tanstack/start-server-core/dist/esm/empty-plugin-adapters.js",
+    "isDynamicEntry": true
+  },
+  "src/router.tsx": {
+    "file": "assets/router-BtzgDyPo.js",
+    "name": "router",
+    "src": "src/router.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_jsx-runtime-DJk4aIBl.js",
+      "_api-CKuSm2qT.js",
+      "_Match-SV5XyXxP.js"
+    ],
+    "dynamicImports": [
+      "src/routes/index.tsx?tsr-split=component"
+    ]
+  },
+  "src/routes/index.tsx?tsr-split=component": {
+    "file": "assets/routes-iEi-z1Wp.js",
+    "name": "routes",
+    "src": "src/routes/index.tsx?tsr-split=component",
+    "isDynamicEntry": true,
+    "imports": [
+      "_jsx-runtime-DJk4aIBl.js",
+      "_api-CKuSm2qT.js"
+    ]
+  },
+  "tanstack-start-manifest:v": {
+    "file": "assets/_tanstack-start-manifest_v-CGn8hhc5.js",
+    "name": "_tanstack-start-manifest_v",
+    "src": "tanstack-start-manifest:v",
+    "isDynamicEntry": true
+  },
+  "virtual:cloudflare/worker-entry": {
+    "file": "index.js",
+    "name": "index",
+    "src": "virtual:cloudflare/worker-entry",
+    "isEntry": true,
+    "imports": [
+      "_jsx-runtime-DJk4aIBl.js",
+      "_Match-SV5XyXxP.js"
+    ],
+    "dynamicImports": [
+      "tanstack-start-manifest:v",
+      "src/router.tsx",
+      "node_modules/.pnpm/@tanstack+react-start@1.168.18_react-dom@19.2.7_react@19.2.7__react@19.2.7_vite@8.0.16__893df8539744d47209f8b294ca814979/node_modules/@tanstack/react-start/dist/plugin/default-entry/start.ts",
+      "node_modules/.pnpm/@tanstack+start-server-core@1.169.8/node_modules/@tanstack/start-server-core/dist/esm/empty-plugin-adapters.js"
+    ]
+  }
+}
