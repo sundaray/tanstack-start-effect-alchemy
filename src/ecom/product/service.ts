@@ -1,5 +1,5 @@
 import { Context, Effect, Layer, Schema } from "effect";
-import { env } from "cloudflare:workers";
+import { ProductDbService } from "./db.js";
 import {
   ProductDbError,
   ProductInvalidResponseError,
@@ -40,17 +40,14 @@ export class ProductService extends Context.Service<
 export const ProductServiceLive = Layer.effect(
   ProductService,
   Effect.gen(function* () {
+    const db = yield* ProductDbService;
     // ============================================
     // Fetches the full list of products
     // ============================================
     function getProducts() {
-      return Effect.tryPromise({
-        try: () =>
-          env.DB.prepare("SELECT id, title FROM products ORDER BY id").all(),
-        catch: (cause) => new ProductsDbError({ cause: String(cause) }),
-      }).pipe(
-        Effect.flatMap((result) =>
-          Schema.decodeUnknownEffect(productListSchema)(result.results),
+      return db.getAll().pipe(
+        Effect.flatMap((rows) =>
+          Schema.decodeUnknownEffect(productListSchema)(rows),
         ),
         Effect.catchTag("SchemaError", (error) =>
           Effect.fail(
@@ -64,13 +61,7 @@ export const ProductServiceLive = Layer.effect(
     // Fetches a single product by its ID
     // ============================================
     function getProductById(id: number) {
-      return Effect.tryPromise({
-        try: () =>
-          env.DB.prepare("SELECT id, title FROM products WHERE id =?")
-            .bind(id)
-            .first(),
-        catch: (cause) => new ProductDbError({ cause: String(cause) }),
-      }).pipe(
+      return db.getById(id).pipe(
         Effect.flatMap(
           (
             row,

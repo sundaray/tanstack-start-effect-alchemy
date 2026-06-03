@@ -5,9 +5,10 @@ import { ecomApi } from "./api.js";
 
 import { productsGroupLayer } from "./product/endpoint-handlers.js";
 import { ProductServiceLive } from "./product/service.js";
+import { ProductDbServiceLive } from "./product/db.js";
 
 export const ecomApiLayer = HttpApiBuilder.layer(ecomApi).pipe(
   Layer.provide(productsGroupLayer),
   Layer.provide(ProductServiceLive),
+  Layer.provide(ProductDbServiceLive),
 );
-
