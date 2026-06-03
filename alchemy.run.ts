@@ -1,14 +1,17 @@
 import alchemy from "alchemy";
-import { TanStackStart } from "alchemy/cloudflare";
+import { D1Database, TanStackStart } from "alchemy/cloudflare";
 
 const app = await alchemy("tanstack-start-effect");
+
+const db = await D1Database("products-db", {
+  migrationsDir: "./migrations",
+});
 
 export const website = await TanStackStart("website", {
   // because we enable nodejs_compat, Cloudflare exposes them
   // on process.env, which is where Effect's Config reads from.
   bindings: {
-    DUMMY_JSON_BASE_URL:
-      process.env.DUMMY_JSON_BASE_URL ?? "https://dummyjson.com",
+    DB: db, // available as env.DB at runtime
   },
   compatibilityFlags: ["nodejs_compat"],
 });

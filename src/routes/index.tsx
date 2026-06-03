@@ -12,7 +12,7 @@ function Home() {
   return AsyncResult.builder(result)
     .onInitialOrWaiting(() => <p>Loading...</p>)
     .onError((error) => <p>Error: {error.message}</p>)
-    .onSuccess(({ products }) => (
+    .onSuccess((products) => (
       <ul>
         {products.slice(0, 10).map((product) => (
           <li key={product.id}>{product.title}</li>
