@@ -2,10 +2,10 @@ import { Schema } from "effect";
 import { HttpApiEndpoint, HttpApiGroup } from "effect/unstable/httpapi";
 
 import {
-  ProductDbError,
+  ProductFetchError,
   ProductInvalidResponseError,
   ProductNotFoundError,
-  ProductsDbError,
+  ProductsFetchError,
   ProductsInvalidResponseError,
 } from "./errors";
 import { productListSchema, productSchema } from "./schemas";
@@ -14,7 +14,7 @@ import { productListSchema, productSchema } from "./schemas";
 // GET /products
 export const productsEndpoint = HttpApiEndpoint.get("getProducts", "/", {
   success: productListSchema,
-  error: [ProductsDbError, ProductsInvalidResponseError],
+  error: [ProductsFetchError, ProductsInvalidResponseError],
 });
 
 // GET /products/:id
@@ -24,7 +24,11 @@ export const productByIdEndpoint = HttpApiEndpoint.get(
   {
     params: { id: Schema.FiniteFromString },
     success: productSchema,
-    error: [ProductNotFoundError, ProductInvalidResponseError, ProductDbError],
+    error: [
+      ProductNotFoundError,
+      ProductInvalidResponseError,
+      ProductFetchError,
+    ],
   },
 );
 

@@ -1,15 +1,19 @@
-import { Context, Effect, Layer, Schema } from "effect";
-import { env } from "cloudflare:workers";
+import { Config, Context, Effect, Layer } from "effect";
 import {
-  ProductDbError,
+  HttpClient,
+  HttpClientRequest,
+  HttpClientResponse,
+} from "effect/unstable/http";
+import {
+  ProductFetchError,
   ProductInvalidResponseError,
   ProductNotFoundError,
-  ProductsDbError,
+  ProductsFetchError,
   ProductsInvalidResponseError,
 } from "./errors.js";
 import {
   productSchema,
-  productListSchema,
+  productsResponseSchema,
   type Product,
   type ProductList,
 } from "./schemas.js";
@@ -22,14 +26,14 @@ export class ProductService extends Context.Service<
   {
     getProducts: () => Effect.Effect<
       ProductList,
-      ProductsDbError | ProductsInvalidResponseError
+      ProductsFetchError | ProductsInvalidResponseError
     >;
 
     getProductById: (
       id: number,
     ) => Effect.Effect<
       Product,
-      ProductNotFoundError | ProductInvalidResponseError | ProductDbError
+      ProductNotFoundError | ProductInvalidResponseError | ProductFetchError
     >;
   }
 >()("ecom/ProductService") {}
@@ -40,22 +44,34 @@ export class ProductService extends Context.Service<
 export const ProductServiceLive = Layer.effect(
   ProductService,
   Effect.gen(function* () {
+    // Read the DummyJSON base URL once, when the layer is built. The default
+    // ConfigProvider reads from process.env, which TanStack Start populates
+    // from `.env` in dev and Cloudflare (with nodejs_compat) exposes at runtime.
+    const baseUrl = yield* Config.string("DUMMY_JSON_BASE_URL");
+
+    // Build a client that prepends the base URL to every request and treats
+    // any non-2xx status as a failure (HttpClientError with a StatusCodeError).
+    const client = (yield* HttpClient.HttpClient).pipe(
+      HttpClient.mapRequest(HttpClientRequest.prependUrl(baseUrl)),
+      HttpClient.filterStatusOk,
+    );
+
     // ============================================
     // Fetches the full list of products
     // ============================================
     function getProducts() {
-      return Effect.tryPromise({
-        try: () =>
-          env.DB.prepare("SELECT id, title FROM products ORDER BY id").all(),
-        catch: (cause) => new ProductsDbError({ cause: String(cause) }),
-      }).pipe(
-        Effect.flatMap((result) =>
-          Schema.decodeUnknownEffect(productListSchema)(result.results),
+      return client.get("/products").pipe(
+        Effect.flatMap(
+          HttpClientResponse.schemaBodyJson(productsResponseSchema),
         ),
+        Effect.map((response) => response.products),
         Effect.catchTag("SchemaError", (error) =>
           Effect.fail(
             new ProductsInvalidResponseError({ cause: error.message }),
           ),
+        ),
+        Effect.catchTag("HttpClientError", (error) =>
+          Effect.fail(new ProductsFetchError({ cause: error.message })),
         ),
       );
     }
@@ -64,28 +80,27 @@ export const ProductServiceLive = Layer.effect(
     // Fetches a single product by its ID
     // ============================================
     function getProductById(id: number) {
-      return Effect.tryPromise({
-        try: () =>
-          env.DB.prepare("SELECT id, title FROM products WHERE id =?")
-            .bind(id)
-            .first(),
-        catch: (cause) => new ProductDbError({ cause: String(cause) }),
-      }).pipe(
-        Effect.flatMap(
-          (
-            row,
-          ): Effect.Effect<
-            Product,
-            ProductNotFoundError | Schema.SchemaError
-          > =>
-            row === null
-              ? Effect.fail(new ProductNotFoundError())
-              : Schema.decodeUnknownEffect(productSchema)(row),
-        ),
+      return client.get(`/products/${id}`).pipe(
+        Effect.flatMap(HttpClientResponse.schemaBodyJson(productSchema)),
         Effect.catchTag("SchemaError", (error) =>
           Effect.fail(
             new ProductInvalidResponseError({ cause: error.message }),
           ),
+        ),
+        Effect.catchTag(
+          "HttpClientError",
+          (
+            error,
+          ): Effect.Effect<never, ProductNotFoundError | ProductFetchError> => {
+            // DummyJSON returns 404 when the product does not exist.
+            if (
+              error.reason._tag === "StatusCodeError" &&
+              error.reason.response.status === 404
+            ) {
+              return Effect.fail(new ProductNotFoundError());
+            }
+            return Effect.fail(new ProductFetchError({ cause: error.message }));
+          },
         ),
       );
     }

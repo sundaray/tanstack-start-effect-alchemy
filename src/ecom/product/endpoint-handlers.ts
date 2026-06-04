@@ -4,6 +4,8 @@ import { HttpApiBuilder } from "effect/unstable/httpapi";
 import { ecomApi } from "../api.js";
 import { ProductService } from "./service.js";
 
+
+// core logic -> port
 export const productsGroupLayer = HttpApiBuilder.group(
   ecomApi,
   "products",

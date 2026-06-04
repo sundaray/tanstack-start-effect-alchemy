@@ -4,14 +4,12 @@ import { Effect, Schema } from "effect";
 // Products list errors
 // =============================================================================
 
-export class ProductsDbError extends Schema.TaggedErrorClass<ProductsDbError>()(
+export class ProductsFetchError extends Schema.TaggedErrorClass<ProductsFetchError>()(
   "ProductsFetchError",
   {
     message: Schema.String.pipe(
       Schema.withConstructorDefault(
-        Effect.succeed(
-          "Failed to get products from the database. Please try again later.",
-        ),
+        Effect.succeed("Failed to fetch products. Please try again later."),
       ),
     ),
     cause: Schema.String,
@@ -63,14 +61,12 @@ export class ProductInvalidResponseError extends Schema.TaggedErrorClass<Product
   { httpApiStatus: 502 },
 ) {}
 
-export class ProductDbError extends Schema.TaggedErrorClass<ProductDbError>()(
+export class ProductFetchError extends Schema.TaggedErrorClass<ProductFetchError>()(
   "ProductFetchError",
   {
     message: Schema.String.pipe(
       Schema.withConstructorDefault(
-        Effect.succeed(
-          "Failed to get the product from the database. Please try again later.",
-        ),
+        Effect.succeed("Failed to fetch the product. Please try again later."),
       ),
     ),
     cause: Schema.String,
